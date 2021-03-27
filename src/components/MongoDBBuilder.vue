@@ -59,6 +59,12 @@
         <v-radio color="#1976d2" label="Non" value=""></v-radio>
       </v-radio-group>
     </div>
+    <v-checkbox 
+      label="Are you want add search filters?" 
+      v-model="contentVisiblity.isFiltersRequired" 
+      value="no"
+      color="primary"
+    ></v-checkbox>
     <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p>
     <v-divider class="ml-2"></v-divider>
     <v-layout align-center row nowrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
@@ -106,6 +112,12 @@
     </v-layout>
 
     <!-- projection -->
+    <v-checkbox 
+      label="Are you want add projections?" 
+      v-model="value" 
+      value="value"
+      color="primary"
+    ></v-checkbox>
 
     <p class="subheading font-weight-medium pl-2 pb-2 mb-0 mt-3">Projection <span class="caption">(Optional)</span></p>
     <v-divider class="ml-2"></v-divider>
@@ -122,144 +134,40 @@
     </v-layout>
 
     <v-layout row wrap>
-      <v-chip close v-for="(path, index) in projections" :key="index">{{path}}</v-chip>
+      <v-chip close 
+        v-for="(path, index) in projections" 
+        :key="index"
+        @input="onCloseEvent(index)"
+      >
+        {{path}}
+      </v-chip>
     </v-layout>
+
+    <!-- <cursor-methods class="mt-3"></cursor-methods> -->
+    <mongo-update  @onQueryUpdate="onMongooseUpdateEvent"></mongo-update>
   </div>
 </template>
 <script>
+// import CursorMethods from './CursorMethods'
+import MongoUpdate from './MongooseUpdate'
+import { 
+  STRING_COMPARISON_OPERATORS, 
+  DATA_TYPES,
+  QUERY_METHOD_CATEGORY,
+  QUERY_METHODS_OPTIONS 
+} from '../common/data'
 let modelValueCounter = 2;
 export default {
+  mounted () {
+    this.queryTypeOption = this.radioOptions['find'].slice(0, this.radioOptions['find'].length);
+  },
   data() {
     return {
-      tabs: [
-        // {
-        //   label: 'Insert',
-        //   active: false,
-        //   value: 'insert',
-        //   color: 'primary'
-        // },
-        {
-          label: 'Update',
-          active: false,
-          value: 'update',
-          color: 'primary'
-        }, {
-          label: 'Find',
-          active: true,
-          value: 'find',
-          color: 'primary'
-        },
-        // {
-        //   label: 'Delete',
-        //   active: false,
-        //   value: 'delete',
-        //   color: 'primary'
-        // },
-        // {
-        //   label: 'Aggregate',
-        //   active: false,
-        //   value: 'aggregate',
-        //   color: 'primary'
-        // }
-      ],
-      radioOptions: {
-        find: [{
-            label: 'Find',
-            value: 'find',
-            default: false,
-            isLogicalOperatorRequred: true,
-          }, {
-            label: 'FindOne',
-            value: 'findOne',
-            default: false,
-            isLogicalOperatorRequred: true
-          }
-        ],
-        update: [{
-            label: 'Update',
-            value: 'update',
-            default: false,
-            isLogicalOperatorRequred: true,
-          }, {
-            label: 'UpdateOne',
-            value: 'updateOne',
-            default: false,
-            isLogicalOperatorRequred: true,
-          }, {
-            label: 'UpdateMany',
-            value: 'updateMany',
-            default: false,
-            isLogicalOperatorRequred: true,
-          },
-          // {
-          //   label: 'FindByIdAndUpdate',
-          //   value: 'findByIdAndUpdate',
-          //   default: false,
-          //   isLogicalOperatorRequred: false
-          // }, 
-          {
-            label: 'FindOneAndUpdate',
-            value: 'findOneAndUpdate',
-            default: false,
-            isLogicalOperatorRequred: true
-          }
-        ],
-        insert: [
-          //   {
-          //   label: 'InsertMany',
-          //   value: 'insertMany',
-          //   default: false,
-          //   isLogicalOperatorRequred: false
-          // }, {
-          //   label: 'Create',
-          //   value: 'create',
-          //   default: false,
-          //   isLogicalOperatorRequred: false
-          // }
-        ],
-        delete: [],
-        aggregate: []
-      },
+      tabs: QUERY_METHOD_CATEGORY,
+      radioOptions: QUERY_METHODS_OPTIONS,
       operator: 'non',
-      dataTypes: [
-        "String",
-        "Numeric",
-        "ObjectId"
-      ],
-      comparisonQueryOperators: [
-        {
-          text: 'Default',
-          value: ''
-        },
-        {
-          text: 'Equal',
-          value: '$eq'
-        },
-        {
-          text: 'Regex',
-          value: '$regex'
-        },
-        {
-          text: 'Greater than',
-          value: '$gt'
-        },
-        {
-          text: 'Greater than or equal ',
-          value: '$gte'
-        },
-        {
-          text: 'Less than',
-          value: '$lt'
-        },
-        {
-          text: 'Less than or equal',
-          value: '$lte'
-        },
-        {
-          text: 'Not equal',
-          value: '$ne'
-        }
-      ],
+      dataTypes: DATA_TYPES,
+      comparisonQueryOperators: STRING_COMPARISON_OPERATORS,
       queryContruct: {
         collection: '',
         method: 'find',
@@ -283,7 +191,12 @@ export default {
       }],
       radios: '',
       projections: [],
-      projectionPathName: ''
+      projectionPathName: '',
+      
+      contentVisiblity: {
+        isProjectionRequired: 'yes',
+        isFiltersRequired: 'yes'
+      }
     }
   },
   methods: {
@@ -308,7 +221,7 @@ export default {
     },
     generateQuery () {
       if (this.queryContruct.operator) {
-        this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}({\"${this.queryContruct.operator}\": [${this.queryContruct.filterBy}]}${this.queryContruct.projection})`
+        this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}({\"${this.queryContruct.operator}\": [${this.queryContruct.filterBy}]}${this.queryContruct.projection}${this.queryContruct.modificationSchema})`
       } else {
         this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}(${this.queryContruct.filterBy ? this.queryContruct.filterBy : '{}'}${this.queryContruct.modificationSchema}${this.queryContruct.projection})`
       }
@@ -383,6 +296,13 @@ export default {
       this.generateQuery();
     },
 
+    onCloseEvent (elementIndex) {
+      this.projections.splice(elementIndex, 1);
+    },
+    onMongooseUpdateEvent (query) {
+      this.queryContruct.modificationSchema = `,{${query}}`;
+      this.generateQuery();
+    },
     addProjection () {
       this.projections.push(this.projectionPathName);
       let paths = '';
@@ -397,6 +317,10 @@ export default {
       this.projectionPathName = '';
       this.generateQuery();
     }
+  },
+  components: {
+    // 'cursor-methods': CursorMethods,
+    'mongo-update': MongoUpdate
   }
 }
 </script>

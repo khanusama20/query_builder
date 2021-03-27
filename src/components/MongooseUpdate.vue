@@ -12,7 +12,8 @@
       <v-radio label="$set" value="$set"></v-radio>
     </v-radio-group>
     <p class="subheading font-weight-medium ma-0 mt-3 pl-2 pb-2">Create Document</p>
-    <v-layout row nowrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
+    <v-divider class="ml-2"></v-divider>
+    <v-layout class="mt-2" row nowrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
       <v-flex xs12 sm12 md4 lg4 class="pa-2">
         <v-text-field
           v-model="model['pathName_'+(index + 1)]"
@@ -37,9 +38,9 @@
           hide-details
         ></v-text-field>
       </v-flex>
-      <v-flex xs12 sm12 md2 lg2 class="pa-2">
+      <!-- <v-flex xs12 sm12 md2 lg2 class="pa-2">
         <v-btn color="red" small dark>Delete</v-btn>
-      </v-flex>
+      </v-flex> -->
     </v-layout>
     <v-layout row wrap>
       <v-btn color="white" small @click="addNewUpdateFields">Add New</v-btn>
@@ -48,11 +49,18 @@
   </div>
 </template>
 <script>
-let modelValueCounter = 1;
+let modelValueCounter = 2;
 export default {
   data () {
     return {
-      dynamicElementsModelInfo: [],
+      dynamicElementsModelInfo: [
+        {
+          pathName_1: '',
+          searchBy_1: '',
+          comparison_operator_1: '',
+          data_type_1: 'String'
+        }
+      ],
       dataTypes: [
         "String",
         "Numeric",

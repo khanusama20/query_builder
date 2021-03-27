@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-layout row nowrap>
+    <v-layout row nowrap justify-center>
       <v-flex lg8 class="mb-2 pr-2">
         <v-card>
           <v-card-text>
@@ -36,7 +36,7 @@
 
     <v-dialog
       v-model="dialog"
-      max-width="290"
+      max-width="690"
     >
       <v-card>
         <v-card-title class="headline">Query</v-card-title>
@@ -79,12 +79,12 @@
             active: true,
             color: 'primary'
           },
-          {
-            label: 'Mongoose Query Builder',
-            value: 'mongoose_builder',
-            active: false,
-            color: 'primary'
-          }
+          // {
+          //   label: 'Mongoose Query Builder',
+          //   value: 'mongoose_builder',
+          //   active: false,
+          //   color: 'primary'
+          // }
         ],
         finalQuery: '',
         dialog: false
