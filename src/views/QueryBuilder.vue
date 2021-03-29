@@ -15,11 +15,16 @@
               </v-btn>
             </v-layout>
             <!-- <mongoose-query-builder @onQueryUpdate="onQueryUpdate" /> -->
-            <mongodb-builder @onQueryUpdate="onQueryUpdate"></mongodb-builder>
+            <mongodb-builder 
+              @onQueryUpdate="onQueryUpdate" 
+              @onQueryMethodChanged="applyDissabled = false" 
+              @onChildTabChanged="applyDissabled = true"
+            ></mongodb-builder>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" flat @click="dialog = true">Apply</v-btn>
+            <!-- <v-btn color="red" flat @click="resetThings">Reset</v-btn> -->
+            <v-btn color="primary" flat @click="dialog = true" :disabled="applyDissabled">Apply</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -33,7 +38,6 @@
         </v-card>        
       </v-flex> -->
     </v-layout>
-
     <v-dialog
       v-model="dialog"
       max-width="690"
@@ -53,13 +57,13 @@
             Close
           </v-btn>
 
-          <v-btn
+          <!-- <v-btn
             color="green darken-1"
             flat="flat"
-            @click="dialog = false"
+            @click="copyCommand"
           >
             Copy
-          </v-btn>
+          </v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -67,14 +71,14 @@
 </template>
 
 <script>
-  // import MongooseQueryBuilder from '../components/MongooseBuilder'
+  import MongooseQueryBuilder from '../components/MongooseBuilder'
   import MongoDBBuilder from '../components/MongoDBBuilder'
   export default {
     data () {
       return {
         tabs: [
           {
-            label: 'MongoDB Query Builder',
+            label: 'MongoDB',
             value: 'mongodb_builder',
             active: true,
             color: 'primary'
@@ -87,11 +91,12 @@
           // }
         ],
         finalQuery: '',
-        dialog: false
+        dialog: false,
+        applyDissabled: true
       }
     },
     components: {
-      // 'mongoose-query-builder': MongooseQueryBuilder,
+      'mongoose-query-builder': MongooseQueryBuilder,
       'mongodb-builder': MongoDBBuilder
     },
     methods: {
@@ -110,6 +115,12 @@
       onQueryUpdate (query) {
         this.finalQuery = query;
         // this.dialog = true;
+      },
+      resetThings () {
+        // todo
+      },
+      copyCommand () {
+
       }
     }
   }

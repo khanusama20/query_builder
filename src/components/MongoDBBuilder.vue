@@ -44,7 +44,19 @@
       </v-radio>
     </v-radio-group>
 
-    <div>
+    <!-- contentVisiblity: {
+        isProjectionRequired: true,
+        isFiltersRequired: true
+      } -->
+
+    <v-checkbox 
+      label="Are you want to add search filters?" 
+      v-model="contentVisiblity.isFiltersRequired"
+      color="primary"
+      @change="onCheckBoxChangedItsState('filter')"
+    ></v-checkbox>
+
+    <div v-if="contentVisiblity.isFiltersRequired === true">
       <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Logical Operator</p>
       <v-divider class="ml-2"></v-divider>
       <v-radio-group 
@@ -56,99 +68,107 @@
       >
         <v-radio color="#1976d2" label="$and" value="$and"></v-radio>
         <v-radio color="#1976d2" label="$or" value="$or"></v-radio>
+        <!-- <v-radio color="#1976d2" label="$and" value="$not"></v-radio>
+        <v-radio color="#1976d2" label="$or" value="$nor"></v-radio> -->
         <v-radio color="#1976d2" label="Non" value=""></v-radio>
       </v-radio-group>
+    
+      <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p>
+      <v-divider class="ml-2"></v-divider>
+      <v-layout align-center row nowrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
+        <v-flex xs12 sm12 md4 lg4 class="pa-2">
+          <v-text-field
+            v-model="model['pathName_'+(index + 1)]"
+            label="Path Name"
+            placeholder="Key name"
+            hide-details
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12 sm12 md4 lg4 class="pa-2">
+          <v-select
+            v-model="model['data_type_'+(index + 1)]"
+            :items="dataTypes"
+            label="Data Type"
+            hide-details
+          ></v-select>
+        </v-flex>
+        <v-flex xs12 sm12 md4 lg4 class="pa-2">
+          <v-select
+            v-model="model['comparison_operator_'+(index + 1)]"
+            :items="comparisonQueryOperators"
+            item-text="text" 
+            item-value="value"
+            label="Comparison Operator"
+            hide-details
+          ></v-select>
+        </v-flex>
+        <v-flex xs12 sm12 md4 lg4 class="pa-2">
+          <v-text-field
+            v-model="model['searchBy_'+(index + 1)]"
+            label="Filter By"
+            placeholder="Search value"
+            hide-details
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12 sm12 md2 lg2 class="pa-2">
+          <v-btn color="white" small disabled>Remove</v-btn>
+        </v-flex>
+      </v-layout>
+      <v-layout row wrap>
+        <v-btn color="white" small @click="addNewQueryElement">Add New</v-btn>
+        <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn>
+      </v-layout>
     </div>
-    <v-checkbox 
-      label="Are you want add search filters?" 
-      v-model="contentVisiblity.isFiltersRequired" 
-      value="no"
-      color="primary"
-    ></v-checkbox>
-    <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p>
-    <v-divider class="ml-2"></v-divider>
-    <v-layout align-center row nowrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
-      <v-flex xs12 sm12 md4 lg4 class="pa-2">
-        <v-text-field
-          v-model="model['pathName_'+(index + 1)]"
-          label="Path Name"
-          placeholder="Key name"
-          hide-details
-        ></v-text-field>
-      </v-flex>
-      <v-flex xs12 sm12 md4 lg4 class="pa-2">
-        <v-select
-          v-model="model['data_type_'+(index + 1)]"
-          :items="dataTypes"
-          label="Data Type"
-          hide-details
-        ></v-select>
-      </v-flex>
-      <v-flex xs12 sm12 md4 lg4 class="pa-2">
-        <v-select
-          v-model="model['comparison_operator_'+(index + 1)]"
-          :items="comparisonQueryOperators"
-          item-text="text" 
-          item-value="value"
-          label="Comparison Operator"
-          hide-details
-        ></v-select>
-      </v-flex>
-      <v-flex xs12 sm12 md4 lg4 class="pa-2">
-        <v-text-field
-          v-model="model['searchBy_'+(index + 1)]"
-          label="Filter By"
-          placeholder="Search value"
-          hide-details
-        ></v-text-field>
-      </v-flex>
-      <v-flex xs12 sm12 md2 lg2 class="pa-2">
-        <v-btn color="white" small>Remove</v-btn>
-      </v-flex>
-    </v-layout>
-    <v-layout row wrap>
-      <v-btn color="white" small @click="addNewQueryElement">Add New</v-btn>
-      <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn>
-    </v-layout>
 
     <!-- projection -->
-    <v-checkbox 
-      label="Are you want add projections?" 
-      v-model="value" 
-      value="value"
-      color="primary"
-    ></v-checkbox>
+    <div v-if="contentVisiblity.openUpdateSection === false && activeTab.projection === true">
+      <v-checkbox
+        label="Are you want to add projections?" 
+        v-model="contentVisiblity.isProjectionRequired"
+        color="primary"
+        @change="onCheckBoxChangedItsState('projection')"
+      ></v-checkbox>
+    </div>
+    
+    <div v-if="contentVisiblity.isProjectionRequired === true">
+      <p class="subheading font-weight-medium pl-2 pb-2 mb-0 mt-3">Projection <span class="caption">(Optional)</span></p>
+      <v-divider class="ml-2"></v-divider>
+      <v-layout row wrap>
+        <v-flex xs12 sm12 md12 lg12 class="pa-2">
+          <v-text-field
+            label="Path Name"
+            v-model="projectionPathName"
+            placeholder="Path name which you want to project"
+            v-on:keyup.enter="addProjection"
+            hide-details
+          ></v-text-field>
+        </v-flex>
+      </v-layout>
 
-    <p class="subheading font-weight-medium pl-2 pb-2 mb-0 mt-3">Projection <span class="caption">(Optional)</span></p>
-    <v-divider class="ml-2"></v-divider>
-    <v-layout row wrap>
-      <v-flex xs12 sm12 md12 lg12 class="pa-2">
-        <v-text-field
-          label="Path Name"
-          v-model="projectionPathName"
-          placeholder="Path name which you want to project"
-          v-on:keyup.enter="addProjection"
-          hide-details
-        ></v-text-field>
-      </v-flex>
-    </v-layout>
+      <v-layout row wrap>
+        <v-chip close 
+          v-for="(path, index) in projections" 
+          :key="index"
+          @input="onCloseEvent(index)"
+        >
+          {{path}}
+        </v-chip>
+      </v-layout>
+    </div>
 
-    <v-layout row wrap>
-      <v-chip close 
-        v-for="(path, index) in projections" 
-        :key="index"
-        @input="onCloseEvent(index)"
-      >
-        {{path}}
-      </v-chip>
-    </v-layout>
-
-    <!-- <cursor-methods class="mt-3"></cursor-methods> -->
-    <mongo-update  @onQueryUpdate="onMongooseUpdateEvent"></mongo-update>
+    <cursor-methods
+      v-if="contentVisiblity.showCursorMethodSection === true" 
+      class="mt-3" 
+      @onCursorMethodActive="concatCursorMethodsToQuery"
+    ></cursor-methods>
+    <mongo-update 
+      v-if="contentVisiblity.openUpdateSection === true"  
+      @onQueryUpdate="onMongooseUpdateEvent"
+    ></mongo-update>
   </div>
 </template>
 <script>
-// import CursorMethods from './CursorMethods'
+import CursorMethods from './CursorMethods'
 import MongoUpdate from './MongooseUpdate'
 import { 
   STRING_COMPARISON_OPERATORS, 
@@ -164,6 +184,7 @@ export default {
   data() {
     return {
       tabs: QUERY_METHOD_CATEGORY,
+      activeTab: QUERY_METHOD_CATEGORY[1],
       radioOptions: QUERY_METHODS_OPTIONS,
       operator: 'non',
       dataTypes: DATA_TYPES,
@@ -178,9 +199,7 @@ export default {
         // modificationSchema: ',{$set:{age: 34, name: ashfaq}}',
         modificationSchema: '',
         optionalParams: '',
-        sortedBy: '',
-        limit: '',
-        skip: ''
+        cursorMethods: ''
       },
       queryTypeOption: [],
       dynamicElementsModelInfo: [{
@@ -194,8 +213,10 @@ export default {
       projectionPathName: '',
       
       contentVisiblity: {
-        isProjectionRequired: 'yes',
-        isFiltersRequired: 'yes'
+        isProjectionRequired: false,
+        isFiltersRequired: false,
+        openUpdateSection: false,
+        showCursorMethodSection: true   // only visible in the find method, and I set find as a default so this value is true
       }
     }
   },
@@ -210,9 +231,35 @@ export default {
       }
       this.radios = '';
       this.queryTypeOption = this.radioOptions[tab.value].slice(0, this.radioOptions[tab.value].length);
+
+      this.activeTab = JSON.parse(JSON.stringify(tab));
+
+      /**
+       * 
+       */
+      switch (tab.value) {
+        case 'update':
+          this.contentVisiblity.openUpdateSection = false
+          this.contentVisiblity.showCursorMethodSection = false;
+          this.contentVisiblity.isProjectionRequired = false;
+
+          break;
+        case 'find':
+          this.contentVisiblity.openUpdateSection = false;
+          this.contentVisiblity.showCursorMethodSection = true;
+          break;
+      }
+
+      this.$emit('onChildTabChanged')
     },
     onRadioChange(event) {
       this.queryContruct.method = event;
+      if (event === 'update' || event === 'updateOne' || event === 'updateMany') {
+        this.contentVisiblity.openUpdateSection = true;
+      } else {
+        this.contentVisiblity.openUpdateSection = false;
+      }
+      this.$emit('onQueryMethodChanged');
       this.generateQuery();
     },
     onOperatorChange (event) {
@@ -221,9 +268,9 @@ export default {
     },
     generateQuery () {
       if (this.queryContruct.operator) {
-        this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}({\"${this.queryContruct.operator}\": [${this.queryContruct.filterBy}]}${this.queryContruct.projection}${this.queryContruct.modificationSchema})`
+        this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}({\"${this.queryContruct.operator}\": [${this.queryContruct.filterBy}]}${this.queryContruct.projection}${this.queryContruct.modificationSchema})${this.queryContruct.cursorMethods}`
       } else {
-        this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}(${this.queryContruct.filterBy ? this.queryContruct.filterBy : '{}'}${this.queryContruct.modificationSchema}${this.queryContruct.projection})`
+        this.finalQuery = `db.${this.queryContruct.collection ? this.queryContruct.collection : 'collection'}.${this.queryContruct.method}(${this.queryContruct.filterBy ? this.queryContruct.filterBy : '{}'}${this.queryContruct.modificationSchema}${this.queryContruct.projection})${this.queryContruct.cursorMethods}`
       }
       this.$emit('onQueryUpdate', this.finalQuery);
     },
@@ -316,10 +363,29 @@ export default {
       this.queryContruct.projection = `,{${paths}}`
       this.projectionPathName = '';
       this.generateQuery();
-    }
+    },
+    onCheckBoxChangedItsState (option) {
+      switch (option) {
+        case 'filter':
+          // todo
+          this.queryContruct.filterBy = this.queryContruct.operator = ''
+          this.generateQuery();
+          break;
+        case 'projection':
+          // todo
+          break;
+      }
+    },
+    concatCursorMethodsToQuery (cursorQuery) {
+      this.queryContruct.cursorMethods = cursorQuery;
+      this.generateQuery();
+    },
+    // removeDynamicElements (index) {
+    //   this.dynamicElementsModelInfo.splice(index, 1);
+    // }
   },
   components: {
-    // 'cursor-methods': CursorMethods,
+    'cursor-methods': CursorMethods,
     'mongo-update': MongoUpdate
   }
 }
