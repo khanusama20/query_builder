@@ -9,7 +9,7 @@
       :row="true" 
       @change="onOperatorChange"
     >
-      <v-radio label="$set" value="$set"></v-radio>
+      <v-radio color="#1976d2" label="$set" value="$set"></v-radio>
     </v-radio-group>
     <p class="subheading font-weight-medium ma-0 mt-3 pl-2 pb-2">Create Document</p>
     <v-divider class="ml-2"></v-divider>

@@ -49,12 +49,12 @@
           hide-details
         ></v-checkbox>
       </v-flex>
-      <v-flex xs6 ms6 md3 lg2>
+      <v-flex xs6 ms6 md3 lg2 v-if="method === 'find'">
         <v-checkbox
           v-model="isCountRequired"
           label="Count"
           color="primary"
-          @change="onHelpers"
+          @change="onHelpers(null, 'count')"
           hide-details
         ></v-checkbox>
       </v-flex>
@@ -107,6 +107,12 @@
 <script>
 import { CURSOR_METHODS } from '../common/data'
 export default {
+  props: {
+    method: {
+      type: String,
+      default: ''
+    },
+  },
   data () {
     return {
       cursorMethods: CURSOR_METHODS,
@@ -131,6 +137,8 @@ export default {
     },
     onHelpers () {
       this.constructQueryPart();
+
+      this.$emit('onCountCursorMethodCheck');
     },
   
     constructQueryPart () {

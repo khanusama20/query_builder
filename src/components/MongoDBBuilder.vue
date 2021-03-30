@@ -75,13 +75,14 @@
     
       <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p>
       <v-divider class="ml-2"></v-divider>
-      <v-layout align-center row nowrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
+      <v-layout align-center row wrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
         <v-flex xs12 sm12 md4 lg4 class="pa-2">
           <v-text-field
             v-model="model['pathName_'+(index + 1)]"
             label="Path Name"
             placeholder="Key name"
             hide-details
+            @input="onInputChange"
           ></v-text-field>
         </v-flex>
         <v-flex xs12 sm12 md4 lg4 class="pa-2">
@@ -90,6 +91,7 @@
             :items="dataTypes"
             label="Data Type"
             hide-details
+            @change="onQueryItemChange"
           ></v-select>
         </v-flex>
         <v-flex xs12 sm12 md4 lg4 class="pa-2">
@@ -100,6 +102,7 @@
             item-value="value"
             label="Comparison Operator"
             hide-details
+            @change="onQueryItemChange"
           ></v-select>
         </v-flex>
         <v-flex xs12 sm12 md4 lg4 class="pa-2">
@@ -108,6 +111,7 @@
             label="Filter By"
             placeholder="Search value"
             hide-details
+            @input="onInputChange"
           ></v-text-field>
         </v-flex>
         <v-flex xs12 sm12 md2 lg2 class="pa-2">
@@ -119,6 +123,10 @@
         <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn>
       </v-layout>
     </div>
+
+    <v-alert type="warning" :value="queryOptionAlert">
+      Please press confirm button to commit your changes.
+    </v-alert>
 
     <!-- projection -->
     <div v-if="contentVisiblity.openUpdateSection === false && activeTab.projection === true">
@@ -157,19 +165,24 @@
     </div>
 
     <cursor-methods
+      :method="queryContruct.method"
       v-if="contentVisiblity.showCursorMethodSection === true" 
       class="mt-3" 
       @onCursorMethodActive="concatCursorMethodsToQuery"
+      @onCountCursorMethodCheck="onCountCursorMethodCheck"
     ></cursor-methods>
     <mongo-update 
       v-if="contentVisiblity.openUpdateSection === true"  
       @onQueryUpdate="onMongooseUpdateEvent"
     ></mongo-update>
+
+    <app-toast :text="toast.text" :value="toast.value" @onToastClose="toast.value = false"></app-toast>
   </div>
 </template>
 <script>
 import CursorMethods from './CursorMethods'
 import MongoUpdate from './MongooseUpdate'
+import Toast from './Toast'
 import { 
   STRING_COMPARISON_OPERATORS, 
   DATA_TYPES,
@@ -186,7 +199,7 @@ export default {
       tabs: QUERY_METHOD_CATEGORY,
       activeTab: QUERY_METHOD_CATEGORY[1],
       radioOptions: QUERY_METHODS_OPTIONS,
-      operator: 'non',
+      operator: '',
       dataTypes: DATA_TYPES,
       comparisonQueryOperators: STRING_COMPARISON_OPERATORS,
       queryContruct: {
@@ -217,6 +230,11 @@ export default {
         isFiltersRequired: false,
         openUpdateSection: false,
         showCursorMethodSection: true   // only visible in the find method, and I set find as a default so this value is true
+      },
+      queryOptionAlert: false,
+      toast: {
+        text: '',
+        value: false
       }
     }
   },
@@ -243,6 +261,9 @@ export default {
           this.contentVisiblity.showCursorMethodSection = false;
           this.contentVisiblity.isProjectionRequired = false;
 
+          // reset projection variable
+          this.queryContruct.projection = '';
+          this.queryContruct.cursorMethods = '';
           break;
         case 'find':
           this.contentVisiblity.openUpdateSection = false;
@@ -286,6 +307,15 @@ export default {
     },
 
     generateFilterQueryPart () {
+
+      // hide alert box
+      this.queryOptionAlert = false;
+
+      this.toast = {
+        text: 'Your changes are commited',
+        value: true
+      };
+
       let queryString = '';
       let len = this.dynamicElementsModelInfo.length;
       for (let i = 0; i < len; i++) {
@@ -373,20 +403,37 @@ export default {
           break;
         case 'projection':
           // todo
+          this.projections = [];
+          this.generateQuery();
           break;
       }
+    },
+
+    onCountCursorMethodCheck () {
+      this.contentVisiblity.isProjectionRequired = false;
+      this.queryContruct.projection = '';
+      this.projections = [];
+      this.generateQuery();
     },
     concatCursorMethodsToQuery (cursorQuery) {
       this.queryContruct.cursorMethods = cursorQuery;
       this.generateQuery();
     },
+
+    onInputChange () {
+      this.queryOptionAlert = true;
+    },
+    onQueryItemChange () {
+      this.queryOptionAlert = true;
+    }
     // removeDynamicElements (index) {
     //   this.dynamicElementsModelInfo.splice(index, 1);
     // }
   },
   components: {
     'cursor-methods': CursorMethods,
-    'mongo-update': MongoUpdate
+    'mongo-update': MongoUpdate,
+    'app-toast': Toast
   }
 }
-</script>
+</script> 
