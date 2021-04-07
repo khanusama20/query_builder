@@ -4,11 +4,11 @@
             <v-toolbar-title>Mongo Query Builder</v-toolbar-title>                
         </v-toolbar>
         <v-app>
-            <v-content>
-                <!-- <v-container fluid fill-height> -->
-                <query-builder></query-builder>
-                <!-- </v-container>    -->
-            </v-content>
+            <v-card class="ml-3">
+                <v-content>
+                    <query-builder></query-builder>
+                </v-content>
+            </v-card>
         </v-app>
     </div>
 </template>
@@ -23,9 +23,13 @@
 
 <script>
 import QueryBuilder from './views/QueryBuilder'
+// import appTree from './views/Tree'
+// import QueryMaker from './views/QueryMaker'
 export default {
     components: {
-        'query-builder': QueryBuilder
+        'query-builder': QueryBuilder,
+        // 'app-tree': appTree,
+        // 'query-maker': QueryMaker
     }
 }
 </script>

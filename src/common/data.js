@@ -18,7 +18,7 @@ greaterThanOperator = {
   value: '$gt'
 },
 greaterThanEqualOperator = {
-  text: 'Greater than or equal ',
+  text: 'Greater than or equal',
   value: '$gte'
 },
 lessThanOperator = {

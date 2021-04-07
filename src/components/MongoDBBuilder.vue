@@ -57,76 +57,101 @@
     ></v-checkbox>
 
     <div v-if="contentVisiblity.isFiltersRequired === true">
-      <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Logical Operator</p>
-      <v-divider class="ml-2"></v-divider>
-      <v-radio-group 
-        v-model="operator" 
-        class="ml-1" color="success" 
-        :mandatory="false" 
-        :row="true" 
-        @change="onOperatorChange"
-      >
-        <v-radio color="#1976d2" label="$and" value="$and"></v-radio>
-        <v-radio color="#1976d2" label="$or" value="$or"></v-radio>
-        <!-- <v-radio color="#1976d2" label="$and" value="$not"></v-radio>
-        <v-radio color="#1976d2" label="$or" value="$nor"></v-radio> -->
-        <v-radio color="#1976d2" label="Non" value=""></v-radio>
-      </v-radio-group>
+      <!-- <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Logical Operator</p> -->
+      <!-- <v-divider class="ml-2"></v-divider> -->
+
+      <v-treeview :items="items">
+        <template v-slot:label="{ item }">
+          <div class="query-container-border pa-2 mb-2">
+          <v-radio-group 
+            v-model="item.operator" 
+            class="ml-1" color="success" 
+            :mandatory="false" 
+            :row="true" 
+            @change="onOperatorChange(item)"
+          >
+            <v-radio color="#1976d2" label="AND" value="$and"></v-radio>
+            <v-radio color="#1976d2" label="OR" value="$or"></v-radio>
+            <!-- <v-radio color="#1976d2" label="$and" value="$not"></v-radio>
+            <v-radio color="#1976d2" label="$or" value="$nor"></v-radio> -->
+            <v-radio color="#1976d2" label="NON" value=""></v-radio>
+          </v-radio-group>
     
-      <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p>
-      <v-divider class="ml-2"></v-divider>
-      <v-layout align-center row wrap v-for="(model, index) in dynamicElementsModelInfo" :key="index">
-        <v-flex xs12 sm12 md4 lg4 class="pa-2">
-          <v-text-field
-            v-model="model['pathName_'+(index + 1)]"
-            label="Path Name"
-            placeholder="Key name"
-            hide-details
-            @input="onInputChange"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12 sm12 md4 lg4 class="pa-2">
-          <v-select
-            v-model="model['data_type_'+(index + 1)]"
-            :items="dataTypes"
-            label="Data Type"
-            hide-details
-            @change="onQueryItemChange"
-          ></v-select>
-        </v-flex>
-        <v-flex xs12 sm12 md4 lg4 class="pa-2">
-          <v-select
-            v-model="model['comparison_operator_'+(index + 1)]"
-            :items="comparisonQueryOperators"
-            item-text="text" 
-            item-value="value"
-            label="Comparison Operator"
-            hide-details
-            @change="onQueryItemChange"
-          ></v-select>
-        </v-flex>
-        <v-flex xs12 sm12 md4 lg4 class="pa-2">
-          <v-text-field
-            v-model="model['searchBy_'+(index + 1)]"
-            label="Filter By"
-            placeholder="Search value"
-            hide-details
-            @input="onInputChange"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12 sm12 md2 lg2 class="pa-2">
-          <v-btn color="white" small disabled>Remove</v-btn>
-        </v-flex>
-      </v-layout>
-      <v-layout row wrap>
-        <v-btn color="white" small @click="addNewQueryElement">Add New</v-btn>
-        <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn>
-      </v-layout>
+          <!-- <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p> -->
+          <!-- <v-divider class="ml-2"></v-divider> -->
+          <v-layout
+            align-center 
+            row 
+            wrap 
+            v-for="(model, index) in item.dynamicElementsModelInfo" 
+            :key="index"
+            class="query-container-border mb-2"
+          >
+            <v-flex xs12 sm12 md4 lg10>
+              <v-layout row wrap>
+                <v-flex xs12 sm12 md4 lg7 class="pa-2">
+                  <v-text-field
+                    v-model="model['pathName_'+item.id+'_'+(index + 1)]"
+                    label="Path Name"
+                    placeholder="Key name"
+                    hide-details
+                    @input="onInputChange"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm12 md4 lg5 class="pa-2">
+                  <v-select
+                    v-model="model['comparison_operator_'+item.id+'_'+(index + 1)]"
+                    :items="comparisonQueryOperators"
+                    item-text="text" 
+                    item-value="value"
+                    label="Comparison Operator"
+                    single-line
+                    hide-details
+                    @change="onQueryItemChange"
+                  ></v-select>
+                </v-flex>
+                <v-flex xs12 sm12 md4 lg5 class="pa-2">
+                  <v-select
+                    v-model="model['data_type_'+item.id+'_'+(index + 1)]"
+                    :items="dataTypes"
+                    label="Data Type"
+                    hide-details
+                    single-line
+                    @change="onQueryItemChange"
+                  ></v-select>
+                </v-flex>
+                <v-flex xs12 sm12 md4 lg7 class="pa-2">
+                  <v-text-field
+                    v-model="model['searchBy_'+item.id+'_'+(index + 1)]"
+                    label="Filter By"
+                    placeholder="Search value"
+                    hide-details
+                    @input="onInputChange"
+                  ></v-text-field>
+                </v-flex> 
+              </v-layout>
+              
+            </v-flex>
+            <v-flex xs12 sm12 md4 lg2 class="text-xs-right">
+              <v-btn color="error" small @click="deleteElementFromTheTree(item)">Delete</v-btn>
+            </v-flex>      
+          </v-layout>
+          <v-layout row wrap>
+            <v-btn color="white" small @click="addNewQueryElement(item)">Add New Field</v-btn>
+            <!-- <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn> -->
+            <v-spacer></v-spacer>
+            <v-btn color="primary" small @click="addChild(item)">Add AND/OR Group</v-btn>
+          </v-layout>
+          </div>
+        </template>
+      </v-treeview>
+      <v-btn color="primary" small @click="combinedAll">Confirm</v-btn>
     </div>
 
     <v-alert type="warning" :value="queryOptionAlert">
       Please press confirm button to commit your changes.
     </v-alert>
+
 
     <!-- projection -->
     <div v-if="contentVisiblity.openUpdateSection === false && activeTab.projection === true">
@@ -189,7 +214,17 @@ import {
   QUERY_METHOD_CATEGORY,
   QUERY_METHODS_OPTIONS 
 } from '../common/data'
-let modelValueCounter = 2;
+
+let randomID = (howMany = 10) => {
+  let chars = "0123456789";
+  let pass = "";
+  let passLength = howMany;
+  for (let x = 0; x < passLength; x++) {
+    let i = Math.floor(Math.random() * chars.length);
+    pass += chars.charAt(i);
+  }
+  return parseInt(pass);
+}
 export default {
   mounted () {
     this.queryTypeOption = this.radioOptions['find'].slice(0, this.radioOptions['find'].length);
@@ -235,7 +270,16 @@ export default {
       toast: {
         text: '',
         value: false
-      }
+      },
+      items: [
+        {
+          id: randomID(),
+          operator: '',
+          dynamicElementsModelInfo: [],
+          elementCounter: 1,
+          children: [],
+        }
+      ]
     }
   },
   methods: {
@@ -283,9 +327,11 @@ export default {
       this.$emit('onQueryMethodChanged');
       this.generateQuery();
     },
-    onOperatorChange (event) {
-      this.queryContruct.operator = event;
-      this.generateQuery();
+    onOperatorChange (item) {
+      // this.queryContruct.operator = event;
+      // this.generateQuery();
+
+      console.log("Event  : ", item);
     },
     generateQuery () {
       if (this.queryContruct.operator) {
@@ -296,80 +342,98 @@ export default {
       this.$emit('onQueryUpdate', this.finalQuery);
     },
 
-    addNewQueryElement () {
-      this.dynamicElementsModelInfo.push({
-        ['pathName_'+modelValueCounter]: '',
-        ['searchBy_'+modelValueCounter]: '',
-        ['comparison_operator_'+modelValueCounter]: '',
-        ['data_type_'+modelValueCounter]: 'String'
+    addNewQueryElement (item) {
+      if (!item.dynamicElementsModelInfo) {
+        this.$set(item, "dynamicElementsModelInfo", []);
+      }
+
+      item.dynamicElementsModelInfo.push({
+        ['pathName_'+item.id+'_'+item.elementCounter]: '',
+        ['searchBy_'+item.id+'_'+item.elementCounter]: '',
+        ['comparison_operator_'+item.id+'_'+item.elementCounter]: '',
+        ['data_type_'+item.id+'_'+item.elementCounter]: 'String',
+        deleteThisElement: false
       });
-      modelValueCounter += 1;
+      
+      item.elementCounter += 1;
     },
 
-    generateFilterQueryPart () {
+    combinedAll() {
+      let mongoFilterQuery = '';
+      let createQuery = function(argument, isChild = false) {
+        /* body... */
+        let queryString = '';
+        let dynamicElementsModelInfo = argument.dynamicElementsModelInfo;
+        let totalElementSize = dynamicElementsModelInfo.length;
 
-      // hide alert box
+        for (let i = 0; i < totalElementSize; i++) {
+
+          if (!dynamicElementsModelInfo[i]['comparison_operator_' + argument.id + '_' + (i + 1)]) { // when deafult select
+            queryString += createPieceOfQuery(argument, i, false);
+          } else {
+            queryString += createPieceOfQuery(argument, i, true);
+          }
+
+          if (i < totalElementSize - 1) {
+            queryString += ',';
+          }
+        }
+
+        // operator will add only child first
+        // Note: Root operator will append last
+
+        if (isChild === true) {
+          mongoFilterQuery += `,{\"${argument.operator}\": [${queryString}]}`
+        } else {
+          mongoFilterQuery += queryString
+        }
+
+        if (argument.children) {
+          if (argument.children.length > 0) {
+            createQuery(argument.children[0], true);
+          }
+        }
+      }
+
+      let createPieceOfQuery = function(argument, i, operator) {
+        /* body... */
+
+        let caseId = argument.dynamicElementsModelInfo[i]['data_type_' + argument.id + '_' + (i + 1)];
+        let pathName = argument.dynamicElementsModelInfo[i][`pathName_${argument.id}_${(i+1)}`];
+        let searchByValue = argument.dynamicElementsModelInfo[i][`searchBy_${argument.id}_${(i+1)}`];
+        let matchingOperatory = operator ? argument.dynamicElementsModelInfo[i][`comparison_operator_${argument.id}_${(i+1)}`] : "";
+
+        switch (caseId) {
+          case 'Numeric':
+            return operator === false ?
+              `{\"${pathName}\": ${searchByValue}}` :
+              `{\"${pathName}\": {\"${matchingOperatory}\": ${searchByValue}}}`;
+            // break;
+
+          case 'String':
+            return operator === false ?
+              `{\"${pathName}\": \"${searchByValue}\"}` :
+              `{\"${pathName}\": {\"${matchingOperatory}\": \"${searchByValue}\"}}`;
+            // break;
+
+          case 'ObjectId':
+            return operator === false ?
+              `{\"${pathName}\": ObjectId(\"${searchByValue}\")}` :
+              `{\"${pathName}\": {\"${matchingOperatory}\": ObjectId(\"${searchByValue}\")}}`;
+            // break;
+        }
+      }
+
+      // start point
+      createQuery(this.items[0]);
+      this.queryContruct.filterBy = `{\"${this.items[0].operator}\": [${mongoFilterQuery}]}`
+
       this.queryOptionAlert = false;
 
       this.toast = {
         text: 'Your changes are commited',
         value: true
       };
-
-      let queryString = '';
-      let len = this.dynamicElementsModelInfo.length;
-      for (let i = 0; i < len; i++) {
-        console.log(this.dynamicElementsModelInfo[i])
-
-        if (!this.dynamicElementsModelInfo[i]['comparison_operator_'+(i+1)]) {   // when deafult select
-          if (this.dynamicElementsModelInfo[i]['data_type_'+(i+1)] === 'Numeric') {
-            queryString += `{\"${this.dynamicElementsModelInfo[i]['pathName_'+(i+1)]}\": ${this.dynamicElementsModelInfo[i]['searchBy_'+(i+1)]}}`;
-          } 
-          
-          else if (this.dynamicElementsModelInfo[i]['data_type_'+(i+1)] === 'String') {
-            queryString += `{\"${this.dynamicElementsModelInfo[i]['pathName_'+(i+1)]}\": \"${this.dynamicElementsModelInfo[i]['searchBy_'+(i+1)]}\"}`;
-          } 
-          
-          else if (this.dynamicElementsModelInfo[i]['data_type_'+(i+1)] === 'ObjectId') {
-            queryString += `{\"${this.dynamicElementsModelInfo[i]['pathName_'+(i+1)]}\": ObjectId(\"${this.dynamicElementsModelInfo[i]['searchBy_'+(i+1)]}\")}`;
-          }
-        } else {
-          let camparison_op_string = '';
-
-          /**
-           * For Numeric Values
-           */
-          if (this.dynamicElementsModelInfo[i]['data_type_'+(i+1)] === 'Numeric') {
-            camparison_op_string = `{\"${this.dynamicElementsModelInfo[i]['comparison_operator_'+(i+1)]}\": ${this.dynamicElementsModelInfo[i]['searchBy_'+(i+1)]}}`;
-            // queryString += `{\"${this.dynamicElementsModelInfo[i]['pathName_'+(i+1)]}\": ${camparison_op_string}}`;
-          } 
-          
-          /**
-           * For String
-           */
-          else if (this.dynamicElementsModelInfo[i]['data_type_'+(i+1)] === 'String') {
-            camparison_op_string = `{\"${this.dynamicElementsModelInfo[i]['comparison_operator_'+(i+1)]}\": \"${this.dynamicElementsModelInfo[i]['searchBy_'+(i+1)]}\"}`;
-            // queryString += `{\"${this.dynamicElementsModelInfo[i]['pathName_'+(i+1)]}\": ${camparison_op_string}}`;
-          }
-          
-          /**
-           * For ObjectId
-           */
-          else if (this.dynamicElementsModelInfo[i]['data_type_'+(i+1)] === 'ObjectId') {
-            alert('ffff')
-            camparison_op_string = `{\"${this.dynamicElementsModelInfo[i]['comparison_operator_'+(i+1)]}\": ObjectId(\"${this.dynamicElementsModelInfo[i]['searchBy_'+(i+1)]}\")}`;
-          }
-
-          queryString += `{\"${this.dynamicElementsModelInfo[i]['pathName_'+(i+1)]}\": ${camparison_op_string}}`;
-
-        } 
-
-        if (i < len - 1) {
-          queryString += ',';
-        }
-      }
-      
-      this.queryContruct.filterBy = queryString;
       this.generateQuery();
     },
 
@@ -425,10 +489,27 @@ export default {
     },
     onQueryItemChange () {
       this.queryOptionAlert = true;
-    }
+    },
+    addChild(item) {
+      if (!item.children) {
+        this.$set(item, "children", []);
+      }
+
+      item.children.push({
+        id: randomID(),
+        operator: "",
+        elementCounter: 1,
+        dynamicElementsModelInfo: [],
+        children: [],
+      });
+    },
     // removeDynamicElements (index) {
     //   this.dynamicElementsModelInfo.splice(index, 1);
     // }
+
+    deleteElementFromTheTree (item) {
+      // todo
+    }
   },
   components: {
     'cursor-methods': CursorMethods,
@@ -436,4 +517,9 @@ export default {
     'app-toast': Toast
   }
 }
-</script> 
+</script>
+<style>
+  .query-container-border {
+    border: 1px solid rgb(180, 180, 180)!important;
+  }
+</style>

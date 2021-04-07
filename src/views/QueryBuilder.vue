@@ -1,9 +1,9 @@
 <template>
   <v-container fluid>
-    <v-layout row nowrap justify-center>
+    <v-layout row nowrap>
       <v-flex lg8 class="mb-2 pr-2">
-        <v-card>
-          <v-card-text>
+        <v-card flat>
+          <!-- <v-card-text> -->
             <v-layout row wrap style="border: 1px solid #e7e7e7c9">
               <v-btn 
                 v-for="(tab, index) in tabs" 
@@ -20,7 +20,7 @@
               @onQueryMethodChanged="applyDissabled = false" 
               @onChildTabChanged="applyDissabled = true"
             ></mongodb-builder>
-          </v-card-text>
+          <!-- </v-card-text> -->
           <v-card-actions>
             <v-spacer></v-spacer>
             <!-- <v-btn color="red" flat @click="resetThings">Reset</v-btn> -->
