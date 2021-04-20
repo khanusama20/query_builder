@@ -74,7 +74,7 @@
             <v-radio color="#1976d2" label="OR" value="$or"></v-radio>
             <!-- <v-radio color="#1976d2" label="$and" value="$not"></v-radio>
             <v-radio color="#1976d2" label="$or" value="$nor"></v-radio> -->
-            <v-radio color="#1976d2" label="NON" value=""></v-radio>
+            <!-- <v-radio color="#1976d2" label="NON" value=""></v-radio> -->
           </v-radio-group>
     
           <!-- <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p> -->
@@ -87,7 +87,7 @@
             :key="index"
             class="query-container-border mb-2"
           >
-            <v-flex xs12 sm12 md4 lg10>
+            <v-flex xs12 sm12 md4 lg10 v-if="model.deleteThisElement === false">
               <v-layout row wrap>
                 <v-flex xs12 sm12 md4 lg7 class="pa-2">
                   <v-text-field
@@ -132,8 +132,8 @@
               </v-layout>
               
             </v-flex>
-            <v-flex xs12 sm12 md4 lg2 class="text-xs-right">
-              <v-btn color="error" small @click="deleteElementFromTheTree(item)">Delete</v-btn>
+            <v-flex xs12 sm12 md4 lg2 class="text-xs-right" v-if="model.deleteThisElement === false">
+              <v-btn color="error" small @click="deleteElementFromTheTree(item, model, index)">Delete</v-btn>
             </v-flex>      
           </v-layout>
           <v-layout row wrap>
@@ -364,19 +364,20 @@ export default {
         /* body... */
         let queryString = '';
         let dynamicElementsModelInfo = argument.dynamicElementsModelInfo;
-        let totalElementSize = dynamicElementsModelInfo.length;
+        let totalElementSize = dynamicElementsModelInfo.filter(e => e.deleteThisElement === false).length;
 
         for (let i = 0; i < totalElementSize; i++) {
+          if (dynamicElementsModelInfo[i].deleteThisElement === false) {
+            if (!dynamicElementsModelInfo[i]['comparison_operator_' + argument.id + '_' + (i + 1)]) { // when deafult select
+              queryString += createPieceOfQuery(argument, i, false);
+            } else {
+              queryString += createPieceOfQuery(argument, i, true);
+            }
 
-          if (!dynamicElementsModelInfo[i]['comparison_operator_' + argument.id + '_' + (i + 1)]) { // when deafult select
-            queryString += createPieceOfQuery(argument, i, false);
-          } else {
-            queryString += createPieceOfQuery(argument, i, true);
-          }
-
-          if (i < totalElementSize - 1) {
-            queryString += ',';
-          }
+            if (i < totalElementSize - 1) {
+              queryString += ',';
+            }
+          } 
         }
 
         // operator will add only child first
@@ -507,8 +508,10 @@ export default {
     //   this.dynamicElementsModelInfo.splice(index, 1);
     // }
 
-    deleteElementFromTheTree (item) {
+    deleteElementFromTheTree (item, model, index) {
       // todo
+      item.dynamicElementsModelInfo[index].deleteThisElement = true;
+      this.queryOptionAlert = true
     }
   },
   components: {
