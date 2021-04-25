@@ -4,11 +4,26 @@
             <v-toolbar-title>Mongo Query Builder</v-toolbar-title>                
         </v-toolbar>
         <v-app>
-            <v-card class="ml-3">
+            <!-- <v-card class="ml-3"> -->
                 <v-content>
-                    <query-builder></query-builder>
+                    <query-builder @onQueryGenerated="onQueryGenerated"></query-builder>
                 </v-content>
-            </v-card>
+            <!-- </v-card> -->
+
+            <v-footer>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <v-card>
+                            <v-card-title primary-title>
+                                Histories:
+                            </v-card-title>
+                            <v-card-text>
+                                <p class="mb-1" v-for="(text, li) in queryHistory" :key="'hs'+li">{{text}}</p>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-footer>
         </v-app>
     </div>
 </template>
@@ -19,17 +34,35 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+
+    .custom_input_box {
+        border: 1px solid #b8b8b8;
+        border-radius: 5px;
+        width: 100%;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        outline: none;
+        font-size: 14px;
+    }
 </style>
 
 <script>
 import QueryBuilder from './views/QueryBuilder'
-// import appTree from './views/Tree'
-// import QueryMaker from './views/QueryMaker'
 export default {
     components: {
-        'query-builder': QueryBuilder,
-        // 'app-tree': appTree,
-        // 'query-maker': QueryMaker
+        'query-builder': QueryBuilder
+    },
+    data () {
+        return {
+            queryHistory: []
+        }
+    },
+    methods: {
+        onQueryGenerated (queryText) {
+            this.queryHistory.push(queryText)
+        }
     }
 }
 </script>

@@ -63,85 +63,126 @@
       <v-treeview :items="items">
         <template v-slot:label="{ item }">
           <div class="query-container-border pa-2 mb-2">
-          <v-radio-group 
-            v-model="item.operator" 
-            class="ml-1" color="success" 
-            :mandatory="false" 
-            :row="true" 
-            @change="onOperatorChange(item)"
-          >
-            <v-radio color="#1976d2" label="AND" value="$and"></v-radio>
-            <v-radio color="#1976d2" label="OR" value="$or"></v-radio>
-            <!-- <v-radio color="#1976d2" label="$and" value="$not"></v-radio>
-            <v-radio color="#1976d2" label="$or" value="$nor"></v-radio> -->
-            <!-- <v-radio color="#1976d2" label="NON" value=""></v-radio> -->
-          </v-radio-group>
-    
-          <!-- <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p> -->
-          <!-- <v-divider class="ml-2"></v-divider> -->
-          <v-layout
-            align-center 
-            row 
-            wrap 
-            v-for="(model, index) in item.dynamicElementsModelInfo" 
-            :key="index"
-            class="query-container-border mb-2"
-          >
-            <v-flex xs12 sm12 md4 lg10 v-if="model.deleteThisElement === false">
-              <v-layout row wrap>
-                <v-flex xs12 sm12 md4 lg7 class="pa-2">
-                  <v-text-field
-                    v-model="model['pathName_'+item.id+'_'+(index + 1)]"
-                    label="Path Name"
-                    placeholder="Key name"
-                    hide-details
-                    @input="onInputChange"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm12 md4 lg5 class="pa-2">
-                  <v-select
-                    v-model="model['comparison_operator_'+item.id+'_'+(index + 1)]"
-                    :items="comparisonQueryOperators"
-                    item-text="text" 
-                    item-value="value"
-                    label="Comparison Operator"
-                    single-line
-                    hide-details
-                    @change="onQueryItemChange"
-                  ></v-select>
-                </v-flex>
-                <v-flex xs12 sm12 md4 lg5 class="pa-2">
-                  <v-select
-                    v-model="model['data_type_'+item.id+'_'+(index + 1)]"
-                    :items="dataTypes"
-                    label="Data Type"
-                    hide-details
-                    single-line
-                    @change="onQueryItemChange"
-                  ></v-select>
-                </v-flex>
-                <v-flex xs12 sm12 md4 lg7 class="pa-2">
-                  <v-text-field
-                    v-model="model['searchBy_'+item.id+'_'+(index + 1)]"
-                    label="Filter By"
-                    placeholder="Search value"
-                    hide-details
-                    @input="onInputChange"
-                  ></v-text-field>
-                </v-flex> 
-              </v-layout>
-              
-            </v-flex>
-            <v-flex xs12 sm12 md4 lg2 class="text-xs-right" v-if="model.deleteThisElement === false">
-              <v-btn color="error" small @click="deleteElementFromTheTree(item, model, index)">Delete</v-btn>
-            </v-flex>      
-          </v-layout>
-          <v-layout row wrap>
-            <v-btn color="white" small @click="addNewQueryElement(item)">Add New Field</v-btn>
-            <!-- <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn> -->
-            <v-spacer></v-spacer>
-            <v-btn color="primary" small @click="addChild(item)">Add AND/OR Group</v-btn>
-          </v-layout>
+            <v-radio-group 
+              v-model="item.operator" 
+              class="ma-0 ml-1 mb-2" color="success" 
+              :mandatory="false"
+              hide-details 
+              :row="true" 
+              @change="onOperatorChange(item)"
+            >
+              <v-radio color="#1976d2" label="AND" value="$and"></v-radio>
+              <v-radio color="#1976d2" label="OR" value="$or"></v-radio>
+              <!-- <v-radio color="#1976d2" label="$and" value="$not"></v-radio>
+              <v-radio color="#1976d2" label="$or" value="$nor"></v-radio> -->
+              <!-- <v-radio color="#1976d2" label="NON" value=""></v-radio> -->
+            </v-radio-group>
+      
+            <!-- <p class="subheading font-weight-medium pl-2 pb-2 mb-0">Query Documents</p> -->
+            <!-- <v-divider class="ml-2"></v-divider> -->
+            <v-layout
+              align-center 
+              row 
+              wrap 
+              v-for="(model, index) in item.dynamicElementsModelInfo" 
+              :key="index"
+              class="query-container-border mb-2"
+            >
+              <v-flex xs12 sm12 md4 lg12 v-if="model.deleteThisElement === false">
+                <v-layout row nowrap>
+                  <v-flex xs12 sm12 md4 lg5 class="pa-2">
+                    <!-- <v-text-field
+                      v-model="model['pathName_'+item.id+'_'+(index + 1)]"
+                      label="Path Name"
+                      placeholder="Key name"
+                      hide-details
+                      @input="onInputChange"
+                    ></v-text-field> -->
+                    <input 
+                      type="text"
+                      class="custom_input_box"
+                      @input="onInputChange" 
+                      placeholder="Key name" 
+                      v-model="model['pathName_'+item.id+'_'+(index + 1)]" 
+                    />
+                  </v-flex>
+                  <v-flex xs12 sm12 md4 lg3 class="pa-2">
+                    <select 
+                      v-model="model['comparison_operator_'+item.id+'_'+(index + 1)]" 
+                      class="custom_input_box"
+                      @change="onQueryItemChange"
+                    >
+                      <option 
+                        v-for="(item, li) in comparisonQueryOperators" 
+                        :key="li" :value="item.value"
+                      >
+                        {{item.text}}
+                      </option>
+                    </select>
+                    <!-- <v-select
+                      v-model="model['comparison_operator_'+item.id+'_'+(index + 1)]"
+                      :items="comparisonQueryOperators"
+                      item-text="text" 
+                      item-value="value"
+                      label="Comparison Operator"
+                      single-line
+                      hide-details
+                      @change="onQueryItemChange"
+                    ></v-select> -->
+                  </v-flex>
+                  <v-flex xs12 sm12 md4 lg2 class="pa-2">
+                    <!-- <v-select
+                      v-model="model['data_type_'+item.id+'_'+(index + 1)]"
+                      :items="dataTypes"
+                      label="Data Type"
+                      hide-details
+                      single-line
+                      @change="onQueryItemChange"
+                    ></v-select> -->
+
+                    <select 
+                      v-model="model['data_type_'+item.id+'_'+(index + 1)]" 
+                      class="custom_input_box"
+                      @change="onQueryItemChange"
+                    >
+                      <option 
+                        v-for="(item, li) in dataTypes" 
+                        :key="'data_type'+li" :value="item"
+                      >
+                        {{item}}
+                      </option>
+                    </select>
+                  </v-flex>
+                  <v-flex xs12 sm12 md4 lg5 class="pa-2">
+                    <!-- <v-text-field
+                      v-model="model['searchBy_'+item.id+'_'+(index + 1)]"
+                      label="Filter By"
+                      placeholder="Search value"
+                      hide-details
+                      @input="onInputChange"
+                    ></v-text-field> -->
+
+                    <input 
+                      type="text"
+                      class="custom_input_box"
+                      @input="onInputChange" 
+                      placeholder="Filter By" 
+                      v-model="model['searchBy_'+item.id+'_'+(index + 1)]"
+                    />
+                  </v-flex> 
+                </v-layout>
+                <v-btn color="error" dark small depressed round>remove</v-btn>
+              </v-flex>
+              <!-- <v-flex xs12 sm12 md4 lg2 class="text-xs-right" v-if="model.deleteThisElement === false">
+                <v-btn color="error" small @click="deleteElementFromTheTree(item, model, index)">Delete</v-btn>
+              </v-flex>       -->
+            </v-layout>
+            <v-layout row wrap>
+              <v-btn color="white" small @click="addNewQueryElement(item)">Add New Field</v-btn>
+              <!-- <v-btn color="primary" small @click="generateFilterQueryPart">Confirm</v-btn> -->
+              <v-spacer></v-spacer>
+              <v-btn color="primary" small @click="addChild(item)">Add AND/OR Group</v-btn>
+            </v-layout>
           </div>
         </template>
       </v-treeview>
@@ -274,7 +315,7 @@ export default {
       items: [
         {
           id: randomID(),
-          operator: '',
+          operator: '$and',
           dynamicElementsModelInfo: [],
           elementCounter: 1,
           children: [],
@@ -498,7 +539,7 @@ export default {
 
       item.children.push({
         id: randomID(),
-        operator: "",
+        operator: '$and',
         elementCounter: 1,
         dynamicElementsModelInfo: [],
         children: [],
@@ -524,5 +565,6 @@ export default {
 <style>
   .query-container-border {
     border: 1px solid rgb(180, 180, 180)!important;
+    border-radius: 5px;
   }
 </style>

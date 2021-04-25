@@ -1,9 +1,9 @@
 <template>
   <v-container fluid>
-    <v-layout row nowrap>
-      <v-flex lg8 class="mb-2 pr-2">
+    <v-layout row justify-center align-center nowrap>
+      <v-flex lg8 class="mb-2 pr-2 mb-3">
         <v-card flat>
-          <!-- <v-card-text> -->
+          <v-card-text>
             <v-layout row wrap style="border: 1px solid #e7e7e7c9">
               <v-btn 
                 v-for="(tab, index) in tabs" 
@@ -20,14 +20,15 @@
               @onQueryMethodChanged="applyDissabled = false" 
               @onChildTabChanged="applyDissabled = true"
             ></mongodb-builder>
-          <!-- </v-card-text> -->
+          </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <!-- <v-btn color="red" flat @click="resetThings">Reset</v-btn> -->
-            <v-btn color="primary" flat @click="dialog = true" :disabled="applyDissabled">Apply</v-btn>
+            <v-btn color="primary" flat @click="onOpenDialog" :disabled="applyDissabled">Apply</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
+      
       <!-- <v-flex lg4 class="pl-2">
         <v-card class="pa-3">
           <v-textarea
@@ -38,6 +39,7 @@
         </v-card>        
       </v-flex> -->
     </v-layout>
+    
     <v-dialog
       v-model="dialog"
       max-width="690"
@@ -115,6 +117,10 @@
       onQueryUpdate (query) {
         this.finalQuery = query;
         // this.dialog = true;
+      },
+      onOpenDialog () {
+        this.dialog = true;
+        this.$emit('onQueryGenerated', this.finalQuery)
       },
       resetThings () {
         // todo
